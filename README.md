@@ -1,0 +1,1 @@
+Both of these games are two player arduino based games which are implemented over a breadboard using some simple components like LEDs, push buttons, resistors, joystick, buzzer, etc. Coding is done over embedded C using Arduino IDE
