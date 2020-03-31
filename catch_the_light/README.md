@@ -1,0 +1,5 @@
+This is an arduino uno based two player game in which the task of one player is to throw the light using push buttons and the task of other player is to catch the light using the joystick. There are two lanes of LEDs (Lane1 - RED LEDs LANE consist of 4 red LEDs and Lane2 - BLUE LEDs LANE consist of 4 blue LEDs ) from where light can come and one white LED is there at the end of the lanes.
+
+Two push buttons are used to throw light to lane 1 and lane 2. The player with buttons can throw light to any of the lanes as per his/her wish using the push buttons. The player with the joystick have to make sure that the light coming from either of the two lanes does not reaches the white LED which is at the end of the lanes. If the light reaches the white LED from either lane the buzzer will blow and the game will end. The speed of light coming from the player with buttons will increase on every push of button.
+
+This game is implemented on bread board. Coding for this game is done using embedded C on arduino IDE. FreeRTOS header file is included in this program and the code is divided into various Tasks/Threads.
