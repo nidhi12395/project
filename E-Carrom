@@ -1,0 +1,608 @@
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity FINAL_CODE is
+Port ( clock1,main_reset,input1,input2,nextswitch : in STD_LOGIC;
+led_main1 : out STD_LOGIC_VECTOR (2 downto 0);
+ledeq,ledgr,ledlo: out std_logic;
+seven_1,seven_2,seven_3,seven_4 : out STD_LOGIC_VECTOR (6 downto 0)
+);
+end FINAL_CODE;
+
+architecture Behavioral of FINAL_CODE is
+
+component counter1 is
+Port ( clk,counteren : in STD_LOGIC;
+reset : in STD_LOGIC ;
+q : buffer STD_LOGIC_vector(2 downto 0):="001");
+end component;
+
+component counter_2 is
+Port ( clk2,counteren2 : in STD_LOGIC;
+reset2 : in STD_LOGIC ;
+q2 : buffer STD_LOGIC_vector(2 downto 0):="001");
+end component;
+
+component counter3 is
+Port ( clk3,counteren3 : in STD_LOGIC;
+reset3 : in STD_LOGIC ;
+q3 : buffer STD_LOGIC_vector(2 downto 0):="001");
+end component;
+
+component FSM is
+port(clock:in std_logic;
+a,b,rest: in std_logic;
+ne_xt:in std_logic;
+cen1,cen2,cen3,cen4,ledeq,ledgr,ledlo: out std_logic;
+sum1,sum2: buffer STD_LOGIC_VECTOR(3 downto 0);
+led1,led2,led3,led4: in std_logic_vector(2 downto 0);
+led: out std_logic_vector(2 downto 0) );
+end component;
+
+component decoder is
+port(
+z:in std_logic_vector (3 downto 0);
+seven1,seven2:out std_logic_vector(6 downto 0));
+end component;
+
+signal x,y,z,w:std_logic;
+signal l,k,m,n:std_logic_vector (2 downto 0);
+signal e,f:std_logic_vector (3 downto 0);
+
+begin
+main: FSM port map (clock=>clock1,ledeq=>ledeq,ledgr=>ledgr,ledlo=>ledlo,rest=>main_reset,a=>input1,b=>input2,ne_xt=>nextswitch,sum1=>e,sum2=>f,led=>led_main1,cen1=>x,cen2=>y,cen3=>z,cen4=>w,led1=>l,led2=>k,led3=>m,led4=>n);
+c1: counter1 port map (clk=>clock1,counteren=>x,reset=>main_reset,q=>l);
+c2: counter3 port map (clk3=>clock1,counteren3=>y,reset3=>main_reset,q3=>k);
+c3: counter_2 port map (clk2=>clock1,counteren2=>z,reset2=>main_reset,q2=>m);
+c4: counter_2 port map (clk2=>clock1,counteren2=>w,reset2=>main_reset,q2=>n);
+d1: decoder port map (z=>e,seven1=>seven_1,seven2=>seven_2);
+d2: decoder port map (z=>f,seven1=>seven_3,seven2=>seven_4);
+end Behavioral;
+----------------------------------------------------FSM----------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity FSM is
+port(clock:in std_logic;
+a,b,rest: in std_logic;
+ne_xt:in std_logic;
+cen1,cen2,cen3,cen4,ledeq,ledgr,ledlo: out std_logic;
+sum1,sum2: buffer STD_LOGIC_VECTOR(3 downto 0);
+led1,led2,led3,led4: in std_logic_vector(2 downto 0);
+led: out std_logic_vector(2 downto 0) );
+end FSM;
+
+architecture Behavioral of FSM is
+
+type state is (s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18,s19,s20,s21,s22,s23,s24,s25,s26,s27,s28,s29,s30,s31,s32,s33,s34,s35,s36,s37,s38,s39,s40,s41,s42,s43,s44,s45,s46,s47,s48,s49,s50,s52,s53,s54,s56,s57,s92);
+
+begin
+process(clock,rest,ne_xt,a,b)
+variable x: state:=s0;
+variable comp1,comp2: std_logic_vector(3 downto 0):="0000";
+begin
+if(rest='1') then
+cen1<='0';
+cen2<='0';
+led<="000";
+cen3<='0';
+cen4<='0';
+ledeq<='0';
+ledgr<='0';
+ledlo<='0';
+comp1:="0000";
+comp2:="0000";
+sum1<="0000";
+sum2<="0000";
+x:=s0;
+elsif (clock'event and clock='1') then
+if (x=s0) then
+if (ne_xt = '1') then
+cen1<='1';
+cen2<='0';
+led<="000";
+sum1<="0000";
+sum2<="0000";
+ledeq<='0';
+ledgr<='0';
+ledlo<='0';
+comp1:="0000";
+comp2:="0000";
+x:=s1;
+end if;
+
+-----------------------------------------------first chance of player1
+elsif (x=s1) then
+if(a='1' and b='0') then
+cen1<='0';
+x:=s2;
+end if;
+elsif (x=s2) then
+led<=led1;
+x:=s4;
+ELSIF (x=s4) then
+if(led1="001") then
+sum1<=sum1+"0001";
+cen2<='1';
+x:=s6;
+elsif(led1="010") then
+sum1<=sum1+"0010";
+cen2<='1';
+x:=s6;
+elsif(led1="100") then
+if(a='0') then
+led<="100";
+cen3<='1';
+x:=s8;
+end if;
+end if;
+elsif (x=s8) then
+if(a='1' and b='0') then
+cen3<='0';
+x:=s12;
+end if;
+elsif (x=s12) then
+led<=led3;
+x:=s13;
+elsif (x=s13) then
+if (led3="001") then
+sum1<=sum1+"0100";
+cen4<='1';
+x:=s7;
+elsif (led3="010") then
+sum1<=sum1+"0000";
+cen2<='1';
+x:=s6;
+end if;
+
+---------------------------------first chance of player2 if b or w or r&w comes in first chance of player1
+elsif (x=s6) then
+if(a='0' and b='1') then
+cen2<='0';
+x:=s9;
+end if;
+elsif (x=s9) then
+led<=led2;
+x:=s11;
+elsif (x=s11) then
+if(led2="001") then
+sum2<=sum2+"0001";
+cen1<='1';
+x:=s14;
+elsif(led2="010") then
+sum2<=sum2+"0010";
+cen1<='1';
+x:=s14;
+elsif(led2="100") then
+if(b='0') then
+led<="100";
+cen4<='1';
+x:=s15;
+end if;
+end if;
+elsif (x=s15) then
+if(a='0' and b='1') then
+cen4<='0';
+x:=s16;
+end if;
+elsif (x=s16) then
+led<=led4;
+x:=s17;
+elsif (x=s17) then
+if (led4="001") then
+sum2<=sum2+"0100";
+cen3<='1';
+x:=s18;
+elsif (led4="010") then
+sum2<=sum2+"0000";
+cen1<='1';
+x:=s14;
+end if;
+
+---------------------------------first chance of player2 if r&b comes in first chance of player1
+elsif (x=s7) then
+if (a='0' and b='1') then
+cen4<='0';
+x:=s19;
+end if;
+elsif (x=s19) then
+led<=led4;
+x:=s20;
+elsif (x=s20) then
+cen3<='1';
+if (led4="001") then
+sum2<=sum2+"0001";
+x:=s18;
+elsif (led4="010") then
+sum2<=sum2+"0010";
+x:=s18;
+end if;
+
+-----------------------------------2nd chance of player1 when b or w or r&w comes in 1st chance of player2
+elsif (x=s14) then
+if (a='1' and b='0') then
+cen1<='0';
+x:=s22;
+end if;
+elsif (x=s22) then
+led<=led1;
+x:=s23;
+elsif (x=s23) then
+if (led1="001") then
+sum1<=sum1+"0001";
+cen2<='1';
+x:=s24;
+elsif (led1="010") then
+sum1<=sum1+"0010";
+cen2<='1';
+x:=s24;
+elsif (led1="100") then
+if(a='0') then
+led<="100";
+cen3<='1';
+x:=s25;
+end if;
+end if;
+elsif (x=s25) then
+if (a='1' and b='0') then
+cen3<='0';
+x:=s26;
+end if;
+elsif (x=s26) then
+led<=led3;
+x:=s27;
+elsif (x=s27) then
+if (led3="001") then
+sum1<=sum1+"0100";
+cen4<='1';
+x:=s28;
+elsif (led3="010") then
+sum1<=sum1+"0000";
+cen2<='1';
+x:=s24;
+end if;
+
+-------------------------------------2nd chance of player1 when r&b comes in 1st chance of player2
+elsif (x=s18) then
+if (a='1' and b='0') then
+cen3<='0';
+x:=s29;
+end if;
+elsif (x=s29) then
+led<=led3;
+x:=s30;
+elsif (x=s30) then
+cen4<='1';
+if (led3="001") then
+sum1<=sum1+"0001";
+x:=s28;
+elsif (led3="010") then
+sum1<=sum1+"0010";
+x:=s28;
+end if;
+
+---------------------------2nd chance of player2 when b or w or r&w comes in 2nd chance of player1
+elsif (x=s24) then
+if (a='0' and b='1') then
+cen2<='0';
+x:=s31;
+end if;
+elsif (x=s31) then
+led<=led2;
+x:=s32;
+elsif (x=s32) then
+if (led2="001") then
+sum2<=sum2+"0001";
+cen1<='1';
+x:=s33;
+elsif (led2="010") then
+sum2<=sum2+"0010";
+cen1<='1';
+x:=s33;
+elsif (led2="100") then
+if(b='0') then
+led<="100";
+cen4<='1';
+x:=s34;
+end if;
+end if;
+elsif (x=s34) then
+if(a='0' and b='1') then
+cen4<='0';
+x:=s35;
+end if;
+elsif (x=s35) then
+led<=led4;
+x:=s36;
+elsif (x=s36) then
+if(led4="001") then
+sum2<=sum2+"0100";
+cen3<='1';
+x:=s37;
+elsif (led4="010") then
+sum2<=sum2+"0000";
+cen1<='1';
+x:=s33;
+end if;
+
+------------------------------------------2nd chance of player2 when r&b comes in 2nd chance of player1
+elsif (x=s28) then
+if (a='0' and b='1') then
+cen4<='0';
+x:=s38;
+end if;
+elsif (x=s38) then
+led<=led4;
+x:=s39;
+elsif (x=s39) then
+cen3<='1';
+if (led4="001") then
+sum2<=sum2+"0001";
+x:=s37;
+elsif (led4="010") then
+sum2<=sum2+"0010";
+x:=s37;
+end if;
+
+---------------------------------3rd chance of player1 when b or w or r&w comes in 1st nd 2nd chance of player2
+elsif (x=s33) then
+if (a='1' and b='0') then
+cen1<='0';
+x:=s40;
+end if;
+elsif (x=s40) then
+led<=led1;
+x:=s41;
+elsif (x=s41) then
+if(led1="001") then
+comp1:=sum1+"0001";
+sum1<=comp1;
+cen2<='1';
+x:=s42;
+elsif (led1="010") then
+comp1:=sum1+"0010";
+sum1<=comp1;
+cen2<='1';
+x:=s42;
+elsif (led1="100") then
+if(a='0') then
+led<="100";
+cen3<='1';
+x:=s43;
+end if;
+end if;
+elsif (x=s43) then
+if (a='1' and b='0') then
+cen3<='0';
+x:=s44;
+end if;
+elsif (x=s44) then
+led<=led3;
+x:=s45;
+elsif (x=s45) then
+if (led3="001") then
+comp1:=sum1+"0100";
+sum1<=comp1;
+cen4<='1';
+x:=s46;
+elsif (led3="010") then
+comp1:=sum1+"0000";
+sum1<=comp1;
+cen2<='1';
+x:=s42;
+end if;
+
+-------------------------------------------------3rd chance of player1 when r&b comes in 1st nd 2nd chance of player2
+elsif(x=s37) then
+if (a='1' and b='0') then
+cen3<='0';
+x:=s47;
+end if;
+elsif (x=s47) then
+led<=led3;
+x:=s48;
+elsif (x=s48) then
+cen4<='1';
+if (led3="001") then
+comp1:=sum1+"0001";
+sum1<=comp1;
+x:=s46;
+elsif (led3="010") then
+comp1:=sum1+"0010";
+sum1<=comp1;
+x:=s46;
+end if;
+
+--------------------------------------3rd chance of player2 when b or w or r&w comes in 2nd chance of player1
+elsif (x=s42) then
+if(a='0' and b='1') then
+cen2<='0';
+x:=s49;
+end if;
+elsif (x=s49) then
+led<=led2;
+x:=s50;
+elsif (x=s50) then
+if (led2="001") then
+comp2:=sum2+"0001";
+sum2<=comp2;
+x:=s92;
+elsif (led2="010") then
+comp2:=sum2+"0010";
+sum2<=comp2;
+x:=s92;
+elsif (led2="100") then
+if(b='0') then
+led<="100";
+cen4<='1';
+x:=s52;
+end if;
+end if;
+elsif (x=s52) then
+if (a='0' and b='1') then
+cen4<='0';
+x:=s53;
+end if;
+elsif (x=s53) then
+led<=led4;
+x:=s54;
+elsif (x=s54) then
+if (led4="001") then
+comp2:=sum2+"0100";
+sum2<=comp2;
+x:=s92;
+elsif (led4="010") then
+comp2:=sum2+"0000";
+sum2<=comp2;
+x:=s92;
+end if;
+
+---------------------------------3rd chance of player2 when r&b comes in 2nd nd 3rd chance of player1
+elsif (x=s46) then
+if (a='0' and b='1') then
+cen4<='0';
+x:=s56;
+end if;
+elsif (x=s56) then
+led<=led4;
+x:=s57;
+elsif (x=s57) then
+if (led4="001") then
+comp2:=sum2+"0001";
+sum2<=comp2;
+x:=s92;
+elsif (led4="010") then
+comp2:=sum2+"0010";
+sum2<=comp2;
+x:=s92;
+end if;
+elsif(x=s92) then
+if(comp1=comp2) then
+ledeq<='1';
+ledgr<='0';
+ledlo<='0';
+elsif(comp1>comp2) then
+ledgr<='1';
+ledlo<='0';
+ledeq<='0';
+elsif (comp1<comp2) then
+ledlo<='1';
+ledeq<='0';
+ledgr<='0';
+end if;
+end if;
+end if;
+end process;
+end Behavioral;
+
+-----------------------------------------------------------COUNTER1-------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+entity counter1 is
+Port ( clk,counteren : in STD_LOGIC;
+reset : in STD_LOGIC ;
+q : buffer STD_LOGIC_vector(2 downto 0):="001");
+end counter1;
+architecture Behavioral of counter1 is
+begin
+PROCESS (clk,reset)
+BEGIN
+IF (reset = '1') then
+q<="001";
+ELSIF(clk'EVENT AND clk ='1') then
+if (counteren='1')then
+if ( q="010")then
+q<="100";
+elsif ( q="100")then
+q<="001" ;
+elsif (q="001") then
+q<="010";
+end if;
+else
+null ;
+end if ;
+end if ;
+end process ;
+end Behavioral;
+
+---------------------------------------------------COUNTER2-------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+entity counter_2 is
+Port ( clk2,counteren2 : in STD_LOGIC;
+reset2 : in STD_LOGIC ;
+q2 : buffer STD_LOGIC_vector(2 downto 0):="010");
+end counter_2;
+architecture Behavioral of counter_2 is
+begin
+PROCESS (clk2,reset2)
+BEGIN
+IF (reset2 = '1') then
+q2<="010";
+ELSIF(clk2'EVENT AND clk2 ='1') then
+if (counteren2='1')then
+if ( q2="010")then
+q2<="001";
+elsif ( q2="001")then
+q2<="010" ;
+end if;
+else
+null ;
+end if ;
+end if ;
+end process ;
+end Behavioral;
+
+------------------------------------------------------------------------DECODER------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+entity decoder is
+port(
+z:in std_logic_vector (3 downto 0);
+seven1,seven2:out std_logic_vector(6 downto 0));
+end decoder;
+architecture Behavioral of decoder is
+begin
+process(z)
+begin
+case z is
+when "0000" => seven1<="0000001";-----lsb
+seven2<="0000001";-----msb
+when "0001" => seven1<="1001111";
+seven2<="0000001";
+when "0010" => seven1<="0010010";
+seven2<="0000001";
+when "0011" => seven1<="0000110";
+seven2<="0000001";
+when "0100" => seven1<="1001100";
+seven2<="0000001";
+when "0101" => seven1<="0100100";
+seven2<="0000001";
+when "0110" => seven1<="0100000";
+seven2<="0000001";
+when "0111" => seven1<="0001111";
+seven2<="0000001";
+when "1000" => seven1<="0000000";
+seven2<="0000001";
+when "1001" => seven1<="0001100";
+seven2<="0000001";
+when "1010" => seven1<="0000001";
+seven2<="1001111";
+when "1011" => seven1<="1001111";
+seven2<="1001111";
+when "1100" => seven1<="0010010";
+seven2<="1001111" ;
+when others => seven1<="1111111";
+seven2<= "1111111";
+end case;
+end process;
+end Behavioral;
