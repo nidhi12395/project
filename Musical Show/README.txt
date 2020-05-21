@@ -1,0 +1,1 @@
+This project is made for the understanding of FreeRTOS. It depicts how a task can be suspended and resumed using task handlers. FreeRTOS is real time operating system designed for embedded devices.
